@@ -4,7 +4,7 @@
     <MainSwiper :banners="banners" />
     <Recommend :recommends="recommends" />
     <Features />
-    <HomeTabControl :titles="['流行','新款','精选']"/>
+    <HomeTabControl class="tab-control" :titles="['流行', '新款', '精选']" />
     <ul>
       <li>我是1</li>
       <li>我是2</li>
@@ -48,7 +48,7 @@ import NavBar from "common/navbar/NavBar";
 
 import HomeTabControl from "content/tabControl/TabControl";
 
-import { getHomeMultidata } from "network/home";
+import { getHomeMultidata, getHomeGoods } from "network/home";
 
 export default {
   components: {
@@ -87,5 +87,9 @@ export default {
 }
 #home {
   padding-top: 42px;
+}
+.tab-control {
+  position: sticky;
+  top: 42px;
 }
 </style>
