@@ -1,16 +1,23 @@
 <template>
   <div id="home">
     <NavBar class="home-nav"> <div slot="center">购物街</div></NavBar>
-  <BetterScroll>
 
-    
-  </BetterScroll>
+    <BetterScroll
+      ref="better"
+      class="content"
+      :probeType="3"
+      @scroll="contentScroll"
+      :pullUpLoad="true"
+      @pullingUp="loadMore"
+    >
+      <MainSwiper :banners="banners" />
+      <Recommend :recommends="recommends" />
+      <Features />
+      <HomeTabControl @tabClick="tabClick" :titles="['流行', '新款', '精选']" />
+      <GoodsList :goodsList="goodsList[currentType].list"> </GoodsList>
+    </BetterScroll>
 
-    <MainSwiper :banners="banners" />
-    <Recommend :recommends="recommends" />
-    <Features />
-    <HomeTabControl @tabClick="tabClick" :titles="['流行', '新款', '精选']" />
-    <GoodsList :goodsList="goodsList[currentType].list"> </GoodsList>
+    <BackTop v-show="isShow" @click.native="backTop" />
   </div>
 </template>
 <script>
@@ -24,6 +31,7 @@ import BetterScroll from "common/scroll/BetterScroll";
 
 import HomeTabControl from "content/tabControl/TabControl";
 import GoodsList from "content/goods/GoodsList";
+import BackTop from "content/backtop/BackTop";
 
 export default {
   components: {
@@ -33,7 +41,8 @@ export default {
     NavBar,
     BetterScroll,
     HomeTabControl,
-    GoodsList
+    GoodsList,
+    BackTop
   },
 
   data() {
@@ -45,7 +54,8 @@ export default {
         new: { page: 0, list: [] },
         sell: { page: 0, list: [] }
       },
-      currentType: "pop"
+      currentType: "pop",
+      isShow: false
     };
   },
 
@@ -56,8 +66,36 @@ export default {
     this.getHomeGoods("new");
     this.getHomeGoods("sell");
   },
-
+  mounted() {
+    this.$bus.$on("updateLength", () => {
+      var c = this.debounce(this.$refs.better.bscroll.refresh(),200);
+      this.debounce();
+    });
+  },
   methods: {
+    debounce(func, time) {
+      let timer = null;
+      return function() {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          func.call(this);
+        }, time);
+      };
+    },
+
+    //加载更多
+    loadMore() {
+      this.getHomeGoods(this.currentType);
+    },
+    //判断是否隐藏返回顶部按钮
+    contentScroll(option) {
+      this.isShow = -1000 > option.y;
+    },
+    //回到顶部
+    backTop() {
+      this.$refs.better.bscroll.scrollTo(0, 0, 500);
+    },
+
     tabClick(index) {
       switch (index) {
         case 0:
@@ -79,19 +117,25 @@ export default {
         this.recommends = res.data.recommend.list;
       });
     },
-
+    //记载数据
     getHomeGoods(type) {
       const page = this.goodsList[type].page + 1;
       getHomeGoods(type, page).then(res => {
         const goodsList = res.data.list;
         this.goodsList[type].list.push(...goodsList);
         this.goodsList[type].page += 1;
+        this.$refs.better.bscroll.finishPullUp();
       });
     }
   }
 };
 </script>
 <style scoped>
+#home {
+  padding-top: 42px;
+  height: 100vh;
+  overflow: hidden;
+}
 .home-nav {
   background-color: var(--color-tint);
   color: white;
@@ -102,8 +146,9 @@ export default {
   right: 0;
   z-index: 10;
 }
-#home {
-  padding-top: 42px;
+
+.content {
+  height: calc(100% - 49px);
 }
 .tab-control {
   position: sticky;
