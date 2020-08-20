@@ -1,11 +1,23 @@
 <template>
   <div id="home">
     <NavBar class="home-nav"> <div slot="center">购物街</div></NavBar>
-    <MainSwiper :banners="banners" />
-    <Recommend :recommends="recommends" />
-    <Features />
-    <HomeTabControl @tabClick="tabClick" :titles="['流行', '新款', '精选']" />
-    <GoodsList :goodsList="goodsList[currentType].list"> </GoodsList>
+
+    <BetterScroll
+      ref="better"
+      class="content"
+      :probeType="3"
+      @scroll="contentScroll"
+      :pullUpLoad="true"
+      @pullingUp="loadMore"
+    >
+      <MainSwiper :banners="banners" />
+      <Recommend :recommends="recommends" />
+      <Features />
+      <HomeTabControl @tabClick="tabClick" :titles="['流行', '新款', '精选']" />
+      <GoodsList :goodsList="goodsList[currentType].list"> </GoodsList>
+    </BetterScroll>
+
+    <BackTop v-show="isShow" @click.native="backTop" />
   </div>
 </template>
 <script>
@@ -15,9 +27,11 @@ import Recommend from "./childcoms/Recommend";
 import Features from "./childcoms/Features";
 
 import NavBar from "common/navbar/NavBar";
+import BetterScroll from "common/scroll/BetterScroll";
 
 import HomeTabControl from "content/tabControl/TabControl";
 import GoodsList from "content/goods/GoodsList";
+import BackTop from "content/backtop/BackTop";
 
 export default {
   components: {
@@ -25,8 +39,10 @@ export default {
     Recommend,
     Features,
     NavBar,
+    BetterScroll,
     HomeTabControl,
-    GoodsList
+    GoodsList,
+    BackTop
   },
 
   data() {
@@ -38,7 +54,8 @@ export default {
         new: { page: 0, list: [] },
         sell: { page: 0, list: [] }
       },
-      currentType: "pop"
+      currentType: "pop",
+      isShow: false
     };
   },
 
@@ -51,6 +68,18 @@ export default {
   },
 
   methods: {
+    loadMore() {
+      this.getHomeGoods(this.currentType);
+    },
+
+    contentScroll(option) {
+      this.isShow = -1000 > option.y;
+    },
+
+    backTop() {
+      this.$refs.better.bscroll.scrollTo(0, 0, 500);
+    },
+
     tabClick(index) {
       switch (index) {
         case 0:
@@ -79,12 +108,18 @@ export default {
         const goodsList = res.data.list;
         this.goodsList[type].list.push(...goodsList);
         this.goodsList[type].page += 1;
+        this.$refs.better.bscroll.finishPullUp();
       });
     }
   }
 };
 </script>
 <style scoped>
+#home {
+  padding-top: 42px;
+  height: 100vh;
+  overflow: hidden;
+}
 .home-nav {
   background-color: var(--color-tint);
   color: white;
@@ -95,7 +130,8 @@ export default {
   right: 0;
   z-index: 10;
 }
-#home {
-  padding-top: 42px;
+
+.content {
+  height: calc(100% - 49px);
 }
 </style>

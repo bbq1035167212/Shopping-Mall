@@ -114,8 +114,9 @@ export default {
     };
   },
   mounted() {
-    console.log();
-    new BScroll(this.$refs.wrapper, {});
+    new BScroll(this.$refs.wrapper, {
+      click: true
+    });
   }
 };
 </script>
