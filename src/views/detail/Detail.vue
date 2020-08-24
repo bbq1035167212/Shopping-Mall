@@ -1,15 +1,19 @@
 <template>
-  <div>
+  <div class="detail">
     <DetailNavBar />
     <DetailSwiper :image="topImages" />
+    <DetailBaseInfo :goods="goods" />
+    <DetailShopInfo :shop="shop" />
   </div>
 </template>
 
 <script>
-import { getDetail } from "network/detail";
+import { getDetail, Goods, Shop } from "network/detail";
 
 import DetailNavBar from "./childComps/DetailNavBar";
 import DetailSwiper from "./childComps/DetailSwiper";
+import DetailBaseInfo from "./childComps/DetailBaseInfo";
+import DetailShopInfo from "./childComps/DetailShopInfo";
 
 export default {
   name: "detail",
@@ -18,12 +22,15 @@ export default {
     return {
       iid: undefined,
       topImages: [],
-      goods: {}
+      goods: {},
+      shop: {}
     };
   },
   components: {
     DetailNavBar,
-    DetailSwiper
+    DetailSwiper,
+    DetailBaseInfo,
+    DetailShopInfo
   },
   created() {
     this.getDetailData();
@@ -35,11 +42,22 @@ export default {
       getDetail(this.iid).then(res => {
         var data = res.result;
         this.topImages = data.itemInfo.topImages;
-        console.log(data);
+        this.goods = new Goods(
+          data.itemInfo,
+          data.columns,
+          data.shopInfo.services
+        );
+        this.shop = new Shop(data.shopInfo);
       });
     }
   }
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style scoped>
+.detail {
+  position: relative;
+  z-index: 120;
+  background-color: white;
+}
+</style>
