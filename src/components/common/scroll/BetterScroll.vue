@@ -40,7 +40,7 @@ export default {
     initScroll() {
       //初始化better-scroll
       if (!this.$refs.wapper) {
-        return false;
+        return false; 
       }
 
       this.bscroll = new BScroll(this.$refs.wapper, {
@@ -61,7 +61,6 @@ export default {
     },
 
     refresh(){
-      console.log(456456456456);
       this.bscroll.refresh()
     }
   }

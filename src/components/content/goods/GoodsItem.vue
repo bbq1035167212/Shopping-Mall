@@ -1,9 +1,9 @@
 <template>
-  <div class="goods-item" >
-    <img :src="goodsItem.show.img" alt="" @load="updateLength"/>
+  <div class="goods-item" @click="goToDetail">
+    <img :src="goodsItem.show.img" alt="" @load="updateLength" />
     <div class="goods-item-info">
       <p>{{ goodsItem.title }}</p>
-      <span class="price">{{ goodsItem.price }}</span>
+      <span class="price">￥{{ goodsItem.price }}</span>
       <span class="collect">{{ goodsItem.cfav }}</span>
     </div>
   </div>
@@ -15,13 +15,17 @@ export default {
     goodsItem: {
       type: Object,
       default() {
-        return {}
+        return {};
       }
     }
   },
-  methods:{
-    updateLength(){
-      this.$bus.$emit("updateLength")
+  methods: {
+    updateLength() {
+      this.$bus.$emit("updateLength");
+    },
+
+    goToDetail() {
+      this.$router.push("/detail/" + this.goodsItem.iid);
     }
   }
 };

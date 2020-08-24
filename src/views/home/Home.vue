@@ -1,6 +1,13 @@
 <template>
   <div id="home">
     <NavBar class="home-nav"> <div slot="center">购物街</div></NavBar>
+    <HomeTabControl
+      class="imbibition"
+      @tabClick="tabClick"
+      :titles="['流行', '新款', '精选']"
+      v-show="isTabshow"
+      ref="tabControl1"
+    />
 
     <BetterScroll
       ref="better"
@@ -10,10 +17,14 @@
       :pullUpLoad="true"
       @pullingUp="loadMore"
     >
-      <MainSwiper :banners="banners" />
+      <MainSwiper @swiperImgLoad="swiperImgLoad" :banners="banners" />
       <Recommend :recommends="recommends" />
       <Features />
-      <HomeTabControl @tabClick="tabClick" :titles="['流行', '新款', '精选']" />
+      <HomeTabControl
+        ref="tabControl"
+        @tabClick="tabClick"
+        :titles="['流行', '新款', '精选']"
+      />
       <GoodsList :goodsList="goodsList[currentType].list"> </GoodsList>
     </BetterScroll>
 
@@ -55,7 +66,10 @@ export default {
         sell: { page: 0, list: [] }
       },
       currentType: "pop",
-      isShow: false
+      isShow: false,
+      isTabshow: false,
+      tabOffsetTop: 0,
+      scrollY: 0
     };
   },
 
@@ -67,12 +81,28 @@ export default {
     this.getHomeGoods("sell");
   },
   mounted() {
+    var refresh = this.debounce(this.$refs.better.refresh, 10);
     this.$bus.$on("updateLength", () => {
-      var c = this.debounce(this.$refs.better.bscroll.refresh(),200);
-      this.debounce();
+      refresh();
     });
   },
+
+  activated() {
+    setTimeout(() => {
+      this.$refs.better.bscroll.refresh();
+      this.$refs.better.bscroll.scrollTo(0, this.scrollY);
+    }, 30);
+  },
+
+  deactivated() {
+    this.scrollY = this.$refs.better.bscroll.y;
+  },
+
   methods: {
+    swiperImgLoad() {
+      this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop - 36;
+    },
+
     debounce(func, time) {
       let timer = null;
       return function() {
@@ -90,6 +120,7 @@ export default {
     //判断是否隐藏返回顶部按钮
     contentScroll(option) {
       this.isShow = -1000 > option.y;
+      this.isTabshow = this.tabOffsetTop < Math.abs(option.y);
     },
     //回到顶部
     backTop() {
@@ -108,6 +139,8 @@ export default {
           this.currentType = "sell";
           break;
       }
+      this.$refs.tabControl1.currentIndex = index;
+      this.$refs.tabControl.currentIndex = index;
     },
 
     // 获取数据
@@ -141,7 +174,7 @@ export default {
   color: white;
   box-shadow: 0px -1px 1px rgba(150, 150, 150, 0.8);
   position: fixed;
-  top: 0;
+  top: 0px;
   left: 0;
   right: 0;
   z-index: 10;
@@ -149,9 +182,13 @@ export default {
 
 .content {
   height: calc(100% - 49px);
+  overflow: hidden;
 }
-.tab-control {
-  position: sticky;
+.imbibition {
+  position: absolute;
   top: 42px;
+  left: 0;
+  right: 0;
+  z-index: 99;
 }
 </style>

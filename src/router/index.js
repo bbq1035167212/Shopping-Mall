@@ -7,6 +7,7 @@ const home = () => import("@/views/home/Home");
 const category = () => import("@/views/category/Category");
 const profile = () => import("@/views/profile/Profile");
 const shopcart = () => import("@/views/shopcart/Shopcart");
+const detail = () => import("@/views/detail/Detail");
 
 const routes = [
   {
@@ -28,6 +29,10 @@ const routes = [
   {
     path: "/profile",
     component: profile
+  },
+  {
+    path: "/detail/:id",
+    component: detail
   }
 ];
 
