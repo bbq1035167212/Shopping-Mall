@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="detail-nav">
     <NavBar>
       <div slot="left" class="back" @click="backClick">
         <img src="~/assets/img/common/back.svg" alt="" />
@@ -46,6 +46,9 @@ export default {
 </script>
 
 <style scoped>
+.detail-nav {
+  background-color: white;
+}
 .back {
   text-align: center;
 }
