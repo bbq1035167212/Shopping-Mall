@@ -40,6 +40,7 @@ export default {
 
     itemClick(index) {
       this.currentIndex = index;
+      this.$emit("currentIndex", index);
     }
   }
 };

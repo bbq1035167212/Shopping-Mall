@@ -1,6 +1,6 @@
 <template>
   <div class="goods-item" @click="goToDetail">
-    <img :src="showImage" alt="" @load="updateLength" />
+    <img v-lazy="showImage" alt="" @load="updateLength" />
     <div class="goods-item-info">
       <p>{{ goodsItem.title }}</p>
       <span class="price">￥{{ goodsItem.price }}</span>
@@ -19,9 +19,17 @@ export default {
       }
     }
   },
+  data() {
+    return {
+      iid: 0
+    };
+  },
+
   computed: {
     showImage() {
-      return this.goodsItem.image || this.goodsItem.show.img;
+      return (
+        this.goodsItem.img || this.goodsItem.image || this.goodsItem.show.img
+      );
     }
   },
 
@@ -32,7 +40,11 @@ export default {
 
     goToDetail() {
       var id = this.goodsItem.iid || this.goodsItem.item_id;
-      this.$router.push("/detail/" + id);
+      //防止重复点击一个商品
+      if (this.iid != id) {
+        this.iid = id;
+        this.$router.push("/detail/" + id);
+      }
     }
   }
 };

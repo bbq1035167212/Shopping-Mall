@@ -13,7 +13,8 @@ module.exports = {
       .set("common", resolve("src/components/common"))
       .set("assets", resolve("src/assets"))
       .set("network", resolve("src/network"))
-      .set("views", resolve("src/views"));
+      .set("views", resolve("src/views"))
+      .set("store", resolve("src/store"));
 
     // 这里只写了两个个，你可以自己再加，按这种格式.set('', resolve(''))
   }

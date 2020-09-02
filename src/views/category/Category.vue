@@ -1,129 +1,204 @@
 <template>
-  <div class="wrapper" ref="wrapper">
-    <ul ref="ui">
-      <li>我是内容1</li>
-      <li>我是内容2</li>
-      <li>我是内容3</li>
-      <li>我是内容4</li>
-      <li>我是内容5</li>
-      <li>我是内容6</li>
-      <li>我是内容7</li>
-      <li>我是内容8</li>
-      <li>我是内容9</li>
-      <li>我是内容10</li>
-      <li>我是内容11</li>
-      <li>我是内容12</li>
-      <li>我是内容13</li>
-      <li>我是内容14</li>
-      <li>我是内容15</li>
-      <li>我是内容16</li>
-      <li>我是内容17</li>
-      <li>我是内容18</li>
-      <li>我是内容19</li>
-      <li>我是内容20</li>
-      <li>我是内容21</li>
-      <li>我是内容22</li>
-      <li>我是内容23</li>
-      <li>我是内容24</li>
-      <li>我是内容25</li>
-      <li>我是内容26</li>
-      <li>我是内容27</li>
-      <li>我是内容28</li>
-      <li>我是内容29</li>
-      <li>我是内容30</li>
-      <li>我是内容31</li>
-      <li>我是内容32</li>
-      <li>我是内容33</li>
-      <li>我是内容34</li>
-      <li>我是内容35</li>
-      <li>我是内容36</li>
-      <li>我是内容37</li>
-      <li>我是内容38</li>
-      <li>我是内容39</li>
-      <li>我是内容40</li>
-      <li>我是内容41</li>
-      <li>我是内容42</li>
-      <li>我是内容43</li>
-      <li>我是内容44</li>
-      <li>我是内容45</li>
-      <li>我是内容46</li>
-      <li>我是内容47</li>
-      <li>我是内容48</li>
-      <li>我是内容49</li>
-      <li>我是内容50</li>
-      <li>我是内容51</li>
-      <li>我是内容52</li>
-      <li>我是内容53</li>
-      <li>我是内容54</li>
-      <li>我是内容55</li>
-      <li>我是内容56</li>
-      <li>我是内容57</li>
-      <li>我是内容58</li>
-      <li>我是内容59</li>
-      <li>我是内容60</li>
-      <li>我是内容61</li>
-      <li>我是内容62</li>
-      <li>我是内容63</li>
-      <li>我是内容64</li>
-      <li>我是内容65</li>
-      <li>我是内容66</li>
-      <li>我是内容67</li>
-      <li>我是内容68</li>
-      <li>我是内容69</li>
-      <li>我是内容70</li>
-      <li>我是内容71</li>
-      <li>我是内容72</li>
-      <li>我是内容73</li>
-      <li>我是内容74</li>
-      <li>我是内容75</li>
-      <li>我是内容76</li>
-      <li>我是内容77</li>
-      <li>我是内容78</li>
-      <li>我是内容79</li>
-      <li>我是内容80</li>
-      <li>我是内容81</li>
-      <li>我是内容82</li>
-      <li>我是内容83</li>
-      <li>我是内容84</li>
-      <li>我是内容85</li>
-      <li>我是内容86</li>
-      <li>我是内容87</li>
-      <li>我是内容88</li>
-      <li>我是内容89</li>
-      <li>我是内容90</li>
-      <li>我是内容91</li>
-      <li>我是内容92</li>
-      <li>我是内容93</li>
-      <li>我是内容94</li>
-      <li>我是内容95</li>
-      <li>我是内容96</li>
-      <li>我是内容97</li>
-      <li>我是内容98</li>
-      <li>我是内容99</li>
-      <li>我是内容100</li>
-    </ul>
+  <div class="category">
+    <nav-bar class="nav-bar"><div slot="center">商品分类</div></nav-bar>
+
+    <div class="content">
+      <TabMenu :category="categoryList" @selectItem="selectItem" />
+
+      <div class="content-shop">
+        <HomeTabControl
+          ref="tabControl1"
+          @tabClick="tabClick"
+          :titles="['流行', '新款', '精选']"
+          class="tab-control imbibition"
+          v-show="isShowTab"
+        />
+        <BetterScroll
+          class="content-scroll"
+          ref="cartBets"
+          :probeType="3"
+          @scroll="contentScroll"
+        >
+          <TabCategory :subcategories="subCategories" @loadImg="loadImg" />
+          <HomeTabControl
+            ref="tabControl"
+            @tabClick="tabClick"
+            :titles="['流行', '新款', '精选']"
+            class="tab-control"
+          />
+          <TabContentDetail :goodsList="subCategoryDetail" />
+        </BetterScroll>
+      </div>
+
+      <BackTop @click.native="backTop(200)" v-show="isShow" />
+    </div>
   </div>
 </template>
 <script>
 import BScroll from "better-scroll";
 
+import HomeTabControl from "content/tabControl/TabControl";
+
+import NavBar from "common/navbar/NavBar";
+import BetterScroll from "common/scroll/BetterScroll";
+
+import TabMenu from "./childcoms/TabMenu";
+import TabCategory from "./childcoms/TabCategory";
+import TabContentDetail from "./childcoms/TabContentDetail";
+
+import BackTop from "content/backtop/BackTop";
+
+import {
+  getCategory,
+  getSubcategory,
+  getCategoryDetail
+} from "network/cagegory";
+
 export default {
   data() {
     return {
-      b: {}
+      categoryList: [],
+      categoryData: {
+        subcategories: [],
+        categoryDetail: {
+          pop: [],
+          new: [],
+          sell: []
+        }
+      },
+      currentIndex: 0,
+      currentType: "pop",
+      isShow: false,
+      getOffsetTop: null,
+      offsetTop: 0,
+      isShowTab: false
     };
   },
+  components: {
+    NavBar,
+    TabMenu,
+    TabCategory,
+    BetterScroll,
+    HomeTabControl,
+    TabContentDetail,
+    BackTop
+  },
+  created() {
+    this.getCategory();
+  },
   mounted() {
-    new BScroll(this.$refs.wrapper, {
-      click: true
-    });
+    this.getOffsetTop = this.debounce(function() {
+      this.offsetTop = this.$refs.tabControl.$el.offsetTop;
+      this.$refs.cartBets.refresh();
+    }, 10);
+  },
+  computed: {
+    subCategories() {
+      return this.categoryData.subcategories;
+    },
+    subCategoryDetail() {
+      return this.categoryData.categoryDetail[this.currentType];
+    }
+  },
+  methods: {
+    loadImg() {
+      this.getOffsetTop();
+    },
+
+    debounce(func, delay) {
+      var timer = null;
+      return function() {
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(() => {
+          func.call(this);
+        }, delay);
+      };
+    },
+
+    backTop(duration = 0) {
+      this.$refs.cartBets.bscroll.scrollTo(0, 0, duration);
+    },
+
+    contentScroll(positon) {
+      this.isShow = -1400 > positon.y;
+      this.isShowTab = -this.offsetTop > positon.y;
+    },
+
+    getCategory() {
+      getCategory().then(res => {
+        this.categoryList = res.data.category.list;
+        this.getSubcategories(0);
+      });
+    },
+
+    getSubcategories(index) {
+      const maitKey = this.categoryList[index].maitKey;
+      getSubcategory(maitKey).then(res => {
+        this.currentIndex = index;
+        this.categoryData.subcategories = res.data.list;
+        this.getCategoryDetail("pop");
+        this.getCategoryDetail("new");
+        this.getCategoryDetail("sell");
+      });
+    },
+    getCategoryDetail(type) {
+      var miniWallkey = this.categoryList[this.currentIndex].miniWallkey;
+      getCategoryDetail(miniWallkey, type).then(res => {
+        this.categoryData.categoryDetail[type] = res;
+        this.categoryData = { ...this.categoryData };
+      });
+    },
+    selectItem(index) {
+      this.backTop(0);
+      this.getSubcategories(index);
+      this.$refs.tabControl.currentIndex = 0;
+      this.$refs.tabControl1.currentIndex = 0;
+    },
+    tabClick(index) {
+      switch (index) {
+        case 0:
+          this.currentType = "pop";
+          break;
+        case 1:
+          this.currentType = "new";
+          break;
+        case 2:
+          this.currentType = "sell";
+          break;
+      }
+      this.$refs.tabControl1.currentIndex = index;
+      this.$refs.tabControl.currentIndex = index;
+    }
   }
 };
 </script>
 <style scoped>
-.wrapper {
-  height: 150px;
-  background-color: red;
+.category {
+  height: 100vh;
+}
+.nav-bar {
+  background-color: var(--color-tint);
+  color: #fff;
+}
+.content {
+  height: calc(100% - 91px);
   overflow: hidden;
+  display: flex;
+}
+.content-shop {
+  flex: 1;
+  position: relative;
+}
+.content-scroll {
+  height: 100%;
+}
+.tab-control {
+  background-color: #fff;
+  z-index: 45;
+}
+.imbibition {
+  position: absolute;
+  z-index: 46;
+  width: 100%;
 }
 </style>
